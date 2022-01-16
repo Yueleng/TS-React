@@ -1,6 +1,7 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import { TextField } from "./TextField";
 
 function App() {
   return (
@@ -21,6 +22,14 @@ function App() {
       </header>
     </div>
   );
+  // return (
+  //   <div>
+  //     <TextField
+  //       text="Hello World"
+  //       person={{ firstName: "", lastName: "" }}
+  //     />
+  //   </div>
+  // );
 }
 
 export default App;
