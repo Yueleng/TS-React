@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const GuestList: React.FC = () => {
   const [name, setName] = useState("");
   const [guests, setGuests] = useState<string[]>([]);
 
-  const onClick = () => {
+  const onClick = useCallback(() => {
     setName("");
     setGuests([...guests, name]);
-  };
+  }, [guests, name]);
 
   return (
     <div>

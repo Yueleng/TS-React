@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 const EventComponent: React.FC = () => {
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(event);
-  };
+  }, []);
 
-  const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+  const onDragStart = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     console.log(event);
-  };
+  }, []);
 
   return (
     <div>
