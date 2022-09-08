@@ -28,10 +28,12 @@ export const searchRepositories = (term: string) => {
         payload: names,
       });
     } catch (err) {
-      dispatch({
-        type: ActionType.SEARCH_REPOSITORIES_ERROR,
-        payload: (err as Error).message,
-      });
+      if (err instanceof Error) {
+        dispatch({
+          type: ActionType.SEARCH_REPOSITORIES_ERROR,
+          payload: (err as Error).message,
+        });
+      }
     }
   };
 };
