@@ -5,6 +5,9 @@ export const unpkgPathPlugin = () => {
   return {
     name: "unpkg-path-plugin",
     setup(build: esbuild.PluginBuild) {
+      // this filter is to filter out the file name to be processed.
+      // `/.*/` represents for all kinds of files.
+      // also namespace is used for filter as well
       build.onResolve({ filter: /.*/ }, async (args: any) => {
         console.log("onResolve", args);
         // return { path: args.path, namespace: "a" };
