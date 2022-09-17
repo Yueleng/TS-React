@@ -1,7 +1,6 @@
 import * as esbuild from "esbuild-wasm";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
-
 import { unpkgPathPlugin } from "./plugins/unpkg-path-plugin";
 
 const App = () => {
@@ -9,7 +8,7 @@ const App = () => {
   const [input, setInput] = useState("");
   const [code, setCode] = useState("");
 
-  const onSubmit = () => {
+  const onSubmit = useCallback(() => {
     if (!ref.current) {
       return;
     }
@@ -23,7 +22,7 @@ const App = () => {
       entryPoints: ["index.js"],
       bundle: true,
       write: false,
-      plugins: [unpkgPathPlugin()],
+      plugins: [unpkgPathPlugin(input)],
       define: {
         "process.env.NODE_ENV": '"production"',
         gloabl: "window",
@@ -34,7 +33,7 @@ const App = () => {
       console.log(res);
       setCode(res.outputFiles[0].text);
     });
-  };
+  }, [input]);
 
   const startService = async () => {
     await esbuild.initialize({

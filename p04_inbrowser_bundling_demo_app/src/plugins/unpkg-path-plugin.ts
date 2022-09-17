@@ -1,7 +1,20 @@
 import * as esbuild from "esbuild-wasm";
 import axios from "axios";
+import localForage from "localforage";
 
-export const unpkgPathPlugin = () => {
+const fileCache = localForage.createInstance({
+  name: "fileCache",
+});
+
+// (async () => {
+//   await fileCache.setItem("color", "red");
+
+//   const color = await fileCache.getItem("color");
+
+//   console.log(color);
+// })();
+
+export const unpkgPathPlugin = (input: string) => {
   return {
     name: "unpkg-path-plugin",
     setup(build: esbuild.PluginBuild) {
@@ -66,13 +79,14 @@ export const unpkgPathPlugin = () => {
         if (args.path === "index.js") {
           return {
             loader: "jsx",
-            contents: `
-              // import message from 'tiny-test-pkg';
-              // const message = require('medium-test-pkg');
-              // const message = require('nested-test-pkg');
-              const message = require('react-dom');
-              console.log(message);
-            `,
+            // contents: `
+            //   // import message from 'tiny-test-pkg';
+            //   // const message = require('medium-test-pkg');
+            //   // const message = require('nested-test-pkg');
+            //   const message = require('react-dom');
+            //   console.log(message);
+            // `,
+            contents: input,
           };
         }
 
@@ -83,6 +97,17 @@ export const unpkgPathPlugin = () => {
         //   };
         // }
 
+        // Check to see if we have already fetched this file
+        // and if it is in the cache
+        const cachedResult = await fileCache.getItem<esbuild.OnLoadResult>(
+          args.path
+        );
+
+        // if it is, return it immediately.
+        if (cachedResult) {
+          return cachedResult;
+        }
+
         /**
          * request gives info whether the request is redirected to somewhere
          */
@@ -90,12 +115,17 @@ export const unpkgPathPlugin = () => {
 
         console.log(request);
 
-        return {
+        const result: esbuild.OnLoadResult = {
           loader: "jsx",
           contents: data,
           // resovleDir: "nested-test-pkg@1.0.0/src"
           resolveDir: new URL("./", request.responseURL).pathname, // ship to onResolve as containing folder
         };
+
+        // store response in cache
+        await fileCache.setItem(args.path, result);
+
+        return result;
       });
     },
   };
