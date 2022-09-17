@@ -25,7 +25,9 @@ export const fetchPlugin = (input: string) => {
         };
       });
 
-      build.onLoad({ filter: /.css$/ }, async (args: OnLoadArgs) => {
+      // Deliberate returning null, thus esbuild will look for next filter
+      // this way, we can group up same logic
+      build.onLoad({ filter: /.*/ }, async (args: OnLoadArgs) => {
         // Check to see if we have already fetched this file
         // and if it is in the cache
         const cachedResult = await fileCache.getItem<OnLoadResult>(args.path);
@@ -35,6 +37,10 @@ export const fetchPlugin = (input: string) => {
           return cachedResult;
         }
 
+        return null;
+      });
+
+      build.onLoad({ filter: /.css$/ }, async (args: OnLoadArgs) => {
         /**
          * request gives info whether the request is redirected to somewhere
          */
@@ -67,15 +73,6 @@ export const fetchPlugin = (input: string) => {
 
       build.onLoad({ filter: /.*/ }, async (args: any) => {
         console.log("onLoad", args);
-
-        // Check to see if we have already fetched this file
-        // and if it is in the cache
-        const cachedResult = await fileCache.getItem<OnLoadResult>(args.path);
-
-        // if it is, return it immediately.
-        if (cachedResult) {
-          return cachedResult;
-        }
 
         /**
          * request gives info whether the request is redirected to somewhere
