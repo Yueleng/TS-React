@@ -39,7 +39,8 @@ const App = () => {
   const startService = async () => {
     await esbuild.initialize({
       worker: true,
-      wasmURL: "/esbuild.wasm",
+      // wasmURL: "/esbuild.wasm",
+      wasmURL: "https://unpkg.com/esbuild-wasm@0.15.7/esbuild.wasm",
     });
     ref.current = esbuild;
   };
