@@ -33,6 +33,12 @@ const App = () => {
     result.then((res: any) => {
       console.log(res);
       setCode(res.outputFiles[0].text);
+
+      try {
+        eval(res.outputFiles[0].text);
+      } catch (err) {
+        alert(err);
+      }
     });
   }, [input]);
 
@@ -40,7 +46,7 @@ const App = () => {
     await esbuild.initialize({
       worker: true,
       // wasmURL: "/esbuild.wasm",
-      wasmURL: "https://unpkg.com/esbuild-wasm@0.15.7/esbuild.wasm",
+      wasmURL: "https://unpkg.com/esbuild-wasm@0.14.21/esbuild.wasm",
     });
     ref.current = esbuild;
   };
