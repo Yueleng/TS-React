@@ -1,5 +1,5 @@
 import * as esbuild from "esbuild-wasm";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import ReactDOM from "react-dom";
 import { unpkgPathPlugin } from "./plugins/unpkg-path-plugin";
 import { fetchPlugin } from "./plugins/fetch-plugin";
@@ -33,14 +33,10 @@ const App = () => {
     result.then((res: any) => {
       console.log(res);
       setCode(res.outputFiles[0].text);
-
-      try {
-        eval(res.outputFiles[0].text);
-      } catch (err) {
-        alert(err);
-      }
     });
   }, [input]);
+
+  const html = useMemo(() => `<script> ${code}</script>`, [code]);
 
   const startService = async () => {
     await esbuild.initialize({
@@ -62,6 +58,11 @@ const App = () => {
         <button onClick={onSubmit}>Submit</button>
       </div>
       <pre>{code}</pre>
+      <iframe
+        title="code-execution-result"
+        sandbox="allow-scripts"
+        srcDoc={html}
+      ></iframe>
     </div>
   );
 };
