@@ -6,8 +6,32 @@ import { fetchPlugin } from "./plugins/fetch-plugin";
 
 const App = () => {
   const ref = useRef<any>();
+  const iframe = useRef<any>();
   const [input, setInput] = useState("");
-  const [code, setCode] = useState("");
+
+  // const html = useMemo(() => `<script> ${code}</script>`, [code]);
+  const html = useMemo(
+    () => `
+      <html>
+        <head></head>
+        <body>
+          <div id="root"></div>
+          <script>
+            window.addEventListener('message', (event) => {
+              try {
+                eval(event.data);
+              } catch (err) {
+                const root = document.querySelector('#root');
+                root.innerHTML = '<div style="color: red;"><h4>Runtime Error</h4>' + err + '</div>'
+                console.error(err);
+              }
+            })
+          </script>
+        </body>
+      </html>
+    `,
+    []
+  );
 
   const onSubmit = useCallback(() => {
     if (!ref.current) {
@@ -18,6 +42,8 @@ const App = () => {
     //   loader: "jsx",
     //   target: "es2015",
     // });
+
+    iframe.current.srcdoc = html;
 
     const result = ref.current.build({
       entryPoints: ["index.js"],
@@ -31,12 +57,11 @@ const App = () => {
     });
 
     result.then((res: any) => {
-      console.log(res);
-      setCode(res.outputFiles[0].text);
+      // console.log(res);
+      // setCode(res.outputFiles[0].text);
+      iframe.current.contentWindow.postMessage(res.outputFiles[0].text, "*");
     });
-  }, [input]);
-
-  const html = useMemo(() => `<script> ${code}</script>`, [code]);
+  }, [input, html]);
 
   const startService = async () => {
     await esbuild.initialize({
@@ -57,8 +82,8 @@ const App = () => {
       <div>
         <button onClick={onSubmit}>Submit</button>
       </div>
-      <pre>{code}</pre>
       <iframe
+        ref={iframe}
         title="code-execution-result"
         sandbox="allow-scripts"
         srcDoc={html}
